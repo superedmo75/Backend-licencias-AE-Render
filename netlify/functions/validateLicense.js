@@ -1,88 +1,79 @@
-// netlify/functions/validateLicense.js
+// Importar dependencias
 const mongoose = require('mongoose');
-const { json } = require('express');
+const { MongoClient } = require('mongodb');
 
-// Conectar a MongoDB Atlas
-const connectDb = async () => {
-  if (mongoose.connections[0].readyState) return;
-  await mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-};
+// Obtener la URI de MongoDB desde las variables de entorno
+const MONGODB_URI = process.env.MONGODB_URI;
 
-// Esquemas
-const LicenseSchema = new mongoose.Schema({
-  token: String,
-  license_type: String,
-  duration_days: Number,
-  activation_date: Date,
-  status: String,
-  max_devices: Number,
-});
+if (!MONGODB_URI) {
+  throw new Error('La variable de entorno MONGODB_URI no está configurada.');
+}
 
-const SessionSchema = new mongoose.Schema({
+// Conectar a MongoDB
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+  .then(() => console.log('Conectado a MongoDB'))
+  .catch((err) => console.error('Error al conectar con MongoDB:', err));
+
+// Definir el esquema de licencias (es un ejemplo, ajusta según tus necesidades)
+const sessionSchema = new mongoose.Schema({
   token: String,
   device_id: String,
   last_check_in: Date,
   active: Boolean,
+  max_devices: Number
 });
 
-const License = mongoose.model('License', LicenseSchema);
-const Session = mongoose.model('Session', SessionSchema);
+// Crear el modelo de la colección "sessions"
+const Session = mongoose.model('Session', sessionSchema);
 
-exports.handler = async function (event, context) {
-  // Conectar a la base de datos
-  await connectDb();
+// Función para validar la licencia
+exports.handler = async (event, context) => {
+  try {
+    // Obtener los datos enviados en el cuerpo de la solicitud
+    const { token, device_id } = JSON.parse(event.body);
 
-  const { token, device_id } = JSON.parse(event.body);
+    // Buscar el documento de la licencia
+    const session = await Session.findOne({ token: token, device_id: device_id });
 
-  // Buscar licencia por token
-  const license = await License.findOne({ token });
-  if (!license || license.status !== 'active') {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ valid: false, message: 'Licencia inválida o inactiva' }),
-    };
-  }
+    if (!session) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Licencia no válida o no encontrada.' }),
+      };
+    }
 
-  // Verificar si la licencia ha expirado
-  const expiry = new Date(license.activation_date);
-  expiry.setDate(expiry.getDate() + license.duration_days);
-  if (new Date() > expiry) {
-    license.status = 'expired';
-    await license.save();
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ valid: false, message: 'Licencia expirada' }),
-    };
-  }
+    // Verificar si la licencia está activa
+    if (!session.active) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'La licencia ha expirado o está desactivada.' }),
+      };
+    }
 
-  // Gestionar sesiones activas
-  let sessions = await Session.find({ token, active: true });
-  const activeDevices = sessions.length;
+    // Verificar si el dispositivo ha superado el número máximo permitido
+    if (session.max_devices && session.max_devices <= 0) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ message: 'Número máximo de dispositivos alcanzado.' }),
+      };
+    }
 
-  // Comprobar si el número de dispositivos excede el máximo permitido
-  if (!sessions.find((s) => s.device_id === device_id) && activeDevices >= license.max_devices) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ valid: false, message: 'Límite de dispositivos excedido' }),
-    };
-  }
-
-  // Actualizar o crear sesión
-  let session = await Session.findOne({ token, device_id });
-  if (!session) {
-    session = new Session({ token, device_id, last_check_in: new Date(), active: true });
-  } else {
+    // Actualizar la fecha de "check-in"
     session.last_check_in = new Date();
-    session.active = true;
-  }
-  await session.save();
+    await session.save();
 
-  // Responder con licencia válida
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ valid: true, expires: expiry.toISOString(), message: 'Licencia activa' }),
-  };
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Licencia validada con éxito', token: token, device_id: device_id }),
+    };
+  } catch (error) {
+    console.error('Error al procesar la solicitud:', error);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Error en el servidor. Intenta más tarde.' }),
+    };
+  }
 };
