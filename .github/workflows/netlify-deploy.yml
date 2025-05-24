@@ -24,12 +24,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Paso 4: Desplegar en Netlify
+      # Paso 4: Descargar e instalar Netlify CLI
+      - name: Download and install Netlify CLI
+        run: |
+          curl -sL https://github.com/netlify/cli/releases/download/v3.0.0/netlify-cli-linux-x64.tar.gz -o netlify-cli.tar.gz
+          tar -xzf netlify-cli.tar.gz
+          sudo mv netlify-cli /usr/local/bin/
+
+      # Paso 5: Desplegar en Netlify
       - name: Deploy to Netlify
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}  # Tu variable de entorno de MongoDB
         run: |
-          curl -sL https://github.com/netlify/cli/releases/download/v3.0.0/netlify-cli-linux-x64.tar.gz | tar xz
-          ./netlify deploy --prod  # Esto hará el despliegue en Netlify
+          ./netlify deploy --prod
