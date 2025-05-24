@@ -4,7 +4,7 @@
   command = "npm run build" 
 [functions]
   # Directorio donde se encuentran las funciones de Netlify (por ejemplo, funciones serverless)
-  directory = "netlify-functions"
+  directory = "netlify/functions"
 
 [env]
   # Agregar las variables de entorno necesarias aquí
