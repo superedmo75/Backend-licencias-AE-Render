@@ -27,7 +27,7 @@ jobs:
       # Paso 4: Descargar e instalar Netlify CLI
       - name: Download and install Netlify CLI
         run: |
-          curl -sL https://github.com/netlify/cli/releases/download/v3.0.0/netlify-cli-linux-x64.tar.gz -o netlify-cli.tar.gz
+          curl -sL https://github.com/netlify/cli/releases/download/v6.0.0/netlify-cli-linux-x64.tar.gz -o netlify-cli.tar.gz
           tar -xzf netlify-cli.tar.gz
           sudo mv netlify-cli /usr/local/bin/
 
