@@ -1,6 +1,5 @@
 // Importar dependencias
 const mongoose = require('mongoose');
-const { MongoClient } = require('mongodb');
 
 // Obtener la URI de MongoDB desde las variables de entorno
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -17,7 +16,7 @@ mongoose.connect(MONGODB_URI, {
   .then(() => console.log('Conectado a MongoDB'))
   .catch((err) => console.error('Error al conectar con MongoDB:', err));
 
-// Definir el esquema de licencias (es un ejemplo, ajusta según tus necesidades)
+// Definir el esquema de licencias (ajusta según tus necesidades)
 const sessionSchema = new mongoose.Schema({
   token: String,
   device_id: String,
