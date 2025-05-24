@@ -10,7 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+<<<<<<< HEAD
       # Paso 1: Checkout del código
+=======
+<<<<<<< HEAD
+      # Paso 1: Checkout del código
+=======
+      # Paso 1: Hacer checkout del código del repositorio
+>>>>>>> 5e02dbcfa5b679c2cc840dffab7ab6125e960da9
+>>>>>>> 795dc8c1a3f05dfa8c67a4d1790f6c722a8df9f7
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -38,4 +46,12 @@ jobs:
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}  # Tu variable de entorno de MongoDB
         run: |
+<<<<<<< HEAD
           netlify deploy --prod
+=======
+<<<<<<< HEAD
+          netlify deploy --prod
+=======
+          ./netlify deploy --prod
+>>>>>>> 5e02dbcfa5b679c2cc840dffab7ab6125e960da9
+>>>>>>> 795dc8c1a3f05dfa8c67a4d1790f6c722a8df9f7
