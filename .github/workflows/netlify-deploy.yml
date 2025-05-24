@@ -1,0 +1,41 @@
+name: Deploy to Netlify
+
+on:
+  push:
+    branches:
+      - master  # o 'main' si usas esa rama
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Paso 1: Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Paso 2: Configurar Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # O la versión que prefieras
+
+      # Paso 3: Instalar dependencias
+      - name: Install dependencies
+        run: npm install
+
+      # Paso 4: Descargar e instalar Netlify CLI
+      - name: Download and install Netlify CLI
+        run: |
+          curl -sL https://github.com/netlify/cli/releases/download/v6.0.0/netlify-cli-linux-x64.tar.gz -o netlify-cli.tar.gz
+          tar -xzf netlify-cli.tar.gz
+          sudo mv netlify-cli /usr/local/bin/
+
+      # Paso 5: Desplegar en Netlify
+      - name: Deploy to Netlify
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}  # Tu variable de entorno de MongoDB
+        run: |
+          netlify deploy --prod
