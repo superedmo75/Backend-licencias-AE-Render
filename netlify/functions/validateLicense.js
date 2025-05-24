@@ -1,5 +1,6 @@
 // Importar dependencias
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');  // Importa la función para generar UUID
 
 // Obtener la URI de MongoDB desde las variables de entorno
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -18,15 +19,20 @@ mongoose.connect(MONGODB_URI, {
 
 // Definir el esquema de licencias (ajusta según tus necesidades)
 const sessionSchema = new mongoose.Schema({
-  token: String,
+  token: { type: String, required: true, unique: true },
   device_id: String,
   last_check_in: Date,
-  active: Boolean,
-  max_devices: Number
+  active: { type: Boolean, default: true },
+  max_devices: { type: Number, default: 1 }
 });
 
 // Crear el modelo de la colección "sessions"
 const Session = mongoose.model('Session', sessionSchema);
+
+// Función para generar un token único
+function generarTokenUnico() {
+  return uuidv4();  // Genera y retorna un UUID único
+}
 
 // Función para validar la licencia
 exports.handler = async (event, context) => {
