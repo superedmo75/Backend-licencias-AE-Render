@@ -1,6 +1,6 @@
 // Importar dependencias
 const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');  // Importa la función para generar UUID
+const { v4: uuidv4 } = require('uuid');  // Importa la librería UUID
 
 // Obtener la URI de MongoDB desde las variables de entorno
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -17,7 +17,7 @@ mongoose.connect(MONGODB_URI, {
   .then(() => console.log('Conectado a MongoDB'))
   .catch((err) => console.error('Error al conectar con MongoDB:', err));
 
-// Definir el esquema de licencias (ajusta según tus necesidades)
+// Definir el esquema de licencias
 const sessionSchema = new mongoose.Schema({
   token: { type: String, required: true, unique: true },
   device_id: String,
@@ -32,6 +32,24 @@ const Session = mongoose.model('Session', sessionSchema);
 // Función para generar un token único
 function generarTokenUnico() {
   return uuidv4();  // Genera y retorna un UUID único
+}
+
+// Función para almacenar una nueva licencia
+async function almacenarLicencia(device_id) {
+  const token = generarTokenUnico();  // Genera un token único
+
+  // Crear un nuevo documento con la licencia
+  const newSession = new Session({
+    token: token,
+    device_id: device_id,
+    last_check_in: new Date(),
+    active: true,
+    max_devices: 1  // Puedes cambiar el número de dispositivos según el plan
+  });
+
+  // Guardar la sesión en MongoDB
+  await newSession.save();
+  return token;  // Retorna el token generado
 }
 
 // Función para validar la licencia
