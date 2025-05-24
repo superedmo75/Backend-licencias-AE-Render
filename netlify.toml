@@ -1,10 +1,8 @@
 [build]
   # Directorio donde se encuentran los archivos estáticos para desplegar
   publish = "/"
-
   # Comando para la construcción (si es necesario en tu caso)
-  # Si no tienes un proceso de construcción (como con Node.js), puedes omitirlo
-  command = "npm run build"
+  command = "npm run build"  # O bien omítelo si no es necesario
 
 [functions]
   # Directorio donde se encuentran las funciones de Netlify (por ejemplo, funciones serverless)
