@@ -1,2 +1,17 @@
-[build.environment]
+[build]
+  # Directorio donde se encuentran los archivos estáticos para desplegar
+  publish = "/"
+
+  # Comando para la construcción (si es necesario en tu caso)
+  # Si no tienes un proceso de construcción (como con Node.js), puedes omitirlo
+  command = "npm run build"
+
+[functions]
+  # Directorio donde se encuentran las funciones de Netlify (por ejemplo, funciones serverless)
+  directory = "netlify-functions"
+
+[env]
+  # Agregar las variables de entorno necesarias aquí
   MONGODB_URI = "mongodb+srv://Admin_AE_Batch_Render:wiVnbMZbsT2BRa@licenciasaebatchrender.k6w97ng.mongodb.net/LicenciasAEbatchRender?retryWrites=true&w=majority"
+  NETLIFY_AUTH_TOKEN = "nfp_czpuYZHWgeEYgsddnL98GZaJomneKw1441f4"
+  NETLIFY_SITE_ID = "30909a3d-58fe-42ed-9816-32acceb88e1b"
