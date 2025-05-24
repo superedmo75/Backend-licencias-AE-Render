@@ -1,0 +1,2 @@
+[build.environment]
+  MONGODB_URI = "mongodb+srv://Admin_AE_Batch_Render:wiVnbMZbsT2BRa@licenciasaebatchrender.k6w97ng.mongodb.net/LicenciasAEbatchRender?retryWrites=true&w=majority"
